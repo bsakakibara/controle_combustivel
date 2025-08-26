@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import {
   Box, Card, CardContent, Typography, Button, TextField,
   Table, TableHead, TableRow, TableCell, TableBody,
-  Grid
+  Grid, Alert
 } from "@mui/material";
 import {
   RadialBarChart, RadialBar, Legend, ResponsiveContainer
@@ -26,13 +26,33 @@ export default function ControleCombustivel() {
     () => JSON.parse(localStorage.getItem("historico")) || []
   );
 
+  const [kmTrocaOleo, setKmTrocaOleo] = useState(
+    () => Number(localStorage.getItem("kmTrocaOleo")) || null
+  );
+  const [dataTrocaOleo, setDataTRocaOleo] = useState(
+    () => localStorage.getItem("dataTrocaOleo") || ""
+  );
+  const [validadeKm, setValidadeKm] = useState(
+    () => Number(localStorage.getItem("validadeKm")) || 5000
+  );
+  const [validadeMeses, setValidadeMeses] = useState(
+    () => Number(localStorage.getItem("validadeMeses")) || 6
+  );
+
   // Salvar no localStorage sempre que mudar
   useEffect(() => {
     localStorage.setItem("capacidadeTanque", capacidadeTanque);
     localStorage.setItem("consumoMedio", consumoMedio);
     localStorage.setItem("quilometragemInicial", quilometragemInicial ?? "");
     localStorage.setItem("historico", JSON.stringify(historico));
-  }, [capacidadeTanque, consumoMedio, quilometragemInicial, historico]);
+
+    localStorage.setItem("kmTrocaOleo", kmTrocaOleo ?? "");
+    localStorage.setItem("dataTrocaOleo", dataTrocaOleo);
+    localStorage.setItem("validadeKm", validadeKm.toString());
+    localStorage.setItem("validadeMeses", validadeMeses.toString());
+
+  }, [capacidadeTanque, consumoMedio, quilometragemInicial, historico,
+    kmTrocaOleo, dataTrocaOleo, validadeKm, validadeMeses]);
 
   const handleAbastecer = () => {
     if (!quilometragemAtual || !litrosAbastecidos) return;
@@ -56,7 +76,7 @@ export default function ControleCombustivel() {
     setLitrosAbastecidos(0);
   };
 
-  // Cálculo do tanque atual
+  // Cálculo do tanque de combustivel atual
   let litrosRestantes = 0;
   let autonomiaRestante = 0;
 
@@ -76,18 +96,80 @@ export default function ControleCombustivel() {
     },
   ];
 
+  // Cálculo troda de óleo
+  let statusOleo = "ok";
+  let msgOleo = "";
+
+  if (kmTrocaOleo && quilometragemAtual) {
+    const kmPassados = quilometragemAtual - kmTrocaOleo;
+    if (kmPassados >= validadeKm) {
+      statusOleo = "vencido";
+      msgOleo = `Troca de óleo vencida! (${kmPassados} Km deste a ultima)`;
+    } else if (kmPassados >= validadeKm * 0.8) {
+      statusOleo = "alerta";
+      msgOleo = `Troca de óleo próxima  (${kmPassados} km rodados)`;
+    }
+  }
+
+  if (dataTrocaOleo) {
+    const dt = new Date(dataTrocaOleo);
+    const hoje = new Date();
+    const mesesPassados = (hoje.getFullYear() - dt.getFullYear()) * 12 + (hoje.getMonth() - dt.getMonth());
+    if (mesesPassados >= validadeMeses) {
+      statusOleo = "vencido";
+      msgOleo = `Troca de óleo vencida! (${kmPassados} km desde a última)`;
+    } else if (mesesPassados >= validadeMeses * 0.8) {
+      statusOleo = "alerta";
+      msgOleo = `Troca de óleo próxima por tempo (${mesesPassados} meses)`;
+    }
+  }
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: "900px", mx: "auto" }}>
       <Typography variant="h4" gutterBottom align="center">
-        ⛽ Controle de Combustível
+        Controle de Óleo e Combustível
       </Typography>
+
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ textAlign: "center", p: 2, bgcolor: "#F9FAFB", boxShadow: 3 }}>
+            <Typography variant="h6">⛽ Autonomia</Typography>
+            <Typography variant="h5" color={autonomiaRestante > 100 ? "green" : "error"}>
+              {autonomiaRestante.toFixed(0)} km
+            </Typography>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ textAlign: "center", p: 2, bgcolor: "#F9FAFB", boxShadow: 3 }}>
+            <Typography variant="h6">🛢️ Óleo</Typography>
+            <Typography
+              variant="h5"
+              color={
+                statusOleo === "ok" ? "green" :
+                  statusOleo === "alerta" ? "orange" : "red"
+              }
+            >
+              {statusOleo === "ok" ? "✅ Em dia" :
+                statusOleo === "alerta" ? "⚠️ Atenção" : "❌ Vencido"}
+            </Typography>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ textAlign: "center", p: 2, bgcolor: "#F9FAFB", boxShadow: 3 }}>
+            <Typography variant="h6">🚗 Consumo</Typography>
+            <Typography variant="h5" color="primary">
+              {consumoMedio.toFixed(1)} km/L
+            </Typography>
+          </Card>
+        </Grid>
+      </Grid>
 
       <Grid container spacing={2}>
         {/* Configurações */}
         <Grid item xs={12} md={6}>
           <Card sx={{ mb: 2 }}>
             <CardContent>
-              <Typography variant="h6">⚙️ Configurações</Typography>
+              <Typography variant="h6" gutterBottom>⚙️ Configurações</Typography>
               <TextField
                 label="Capacidade do Tanque (L)"
                 type="number"
@@ -106,7 +188,7 @@ export default function ControleCombustivel() {
           </Card>
         </Grid>
 
-        {/* Registrar */}
+        {/* Registrar abastecimento */}
         <Grid item xs={12} md={6}>
           <Card sx={{ mb: 2 }}>
             <CardContent>
@@ -127,15 +209,59 @@ export default function ControleCombustivel() {
               />
               <Button
                 variant="contained"
+                color="primary"
                 onClick={handleAbastecer}
                 fullWidth
-                disabled={!quilometragemAtual || !litrosAbastecidos}
               >
                 Registrar
               </Button>
             </CardContent>
           </Card>
         </Grid>
+      </Grid>
+
+      {/* Registrar Óleo */}
+      <Grid item xs={12}>
+        <Card sx={{ mb: 2 }}>
+          <CardContent>
+            <Typography variant="h6">🛢️ Controle de Óleo</Typography>
+            <TextField
+              label="Km da última troca"
+              type="number"
+              value={kmTrocaOleo ?? ""}
+              onChange={(e) => setKmTrocaOleo(Number(e.target.value))}
+              fullWidth sx={{ my: 1 }}
+            />
+            <TextField
+              label="Data da última troca"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={dataTrocaOleo}
+              onChange={(e) => setDataTrocaOleo(e.target.value)}
+              fullWidth sx={{ my: 1 }}
+            />
+            <TextField
+              label="Validade (Km)"
+              type="number"
+              value={validadeKm}
+              onChange={(e) => setValidadeKm(Number(e.target.value))}
+              fullWidth sx={{ my: 1 }}
+            />
+            <TextField
+              label="Validade (Meses)"
+              type="number"
+              value={validadeMeses}
+              onChange={(e) => setValidadeMeses(Number(e.target.value))}
+              fullWidth sx={{ my: 1 }}
+            />
+
+            {msgOleo && (
+              <Alert severity={statusOleo === "vencido" ? "error" : "warning"} sx={{ mt: 2 }}>
+                {msgOleo}
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
       </Grid>
 
       {/* Nível do tanque */}
