@@ -1,0 +1,88 @@
+import { useState } from "react";
+import { Box, Typography, Tabs, Tab } from "@mui/material";
+import ControleOleo from "./ControleOleo";
+import ControleCombustivel from "./ControleCombustivel";
+
+export default function ControleVeiculo() {
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const [capacidadeTanque, setCapacidadeTanque] = useState(
+    () => Number(localStorage.getItem("capacidadeTanque")) || 58
+  );
+  const [consumoMedio, setConsumoMedio] = useState(
+    () => Number(localStorage.getItem("consumoMedio")) || 8
+  );
+
+  const [quilometragemInicial, setQuilometragemInicial] = useState(
+    () => Number(localStorage.getItem("quilometragemInicial")) || null
+  );
+  const [quilometragemAtual, setQuilometragemAtual] = useState(null);
+  const [litrosAbastecidos, setLitrosAbastecidos] = useState(0);
+  const [historico, setHistorico] = useState(
+    () => JSON.parse(localStorage.getItem("historico")) || []
+  );
+
+  const [kmTrocaOleo, setKmTrocaOleo] = useState(
+    () => Number(localStorage.getItem("kmTrocaOleo")) || null
+  );
+  const [dataTrocaOleo, setDataTrocaOleo] = useState(
+    () => localStorage.getItem("dataTrocaOleo") || ""
+  );
+  const [validadeKm, setValidadeKm] = useState(
+    () => Number(localStorage.getItem("validadeKm")) || 5000
+  );
+  const [validadeMeses, setValidadeMeses] = useState(
+    () => Number(localStorage.getItem("validadeMeses")) || 6
+  );
+
+  return (
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: "900px", mx: "auto" }}>
+      <Typography variant="h4" gutterBottom align="center">
+        Controle do Veículo
+      </Typography>
+
+      <Tabs
+        value={tabIndex}
+        onChange={(e, newValue) => setTabIndex(newValue)}
+        centered
+        indicatorColor="primary"
+        textColor="primary"
+        sx={{ mb: 2 }}
+      >
+        <Tab label="Combustível" />
+        <Tab label="Óleo" />
+      </Tabs>
+
+      {tabIndex === 0 && (
+        <ControleCombustivel
+          capacidadeTanque={capacidadeTanque}
+          setCapacidadeTanque={setCapacidadeTanque}
+          consumoMedio={consumoMedio}
+          setConsumoMedio={setConsumoMedio}
+          quilometragemAtual={quilometragemAtual}
+          setQuilometragemAtual={setQuilometragemAtual}
+          litrosAbastecidos={litrosAbastecidos}
+          setLitrosAbastecidos={setLitrosAbastecidos}
+          historico={historico}
+          setHistorico={setHistorico}
+          quilometragemInicial={quilometragemInicial}
+          setQuilometragemInicial={setQuilometragemInicial}
+        />
+      )}
+
+      {tabIndex === 1 && (
+        <ControleOleo
+          quilometragemAtual={quilometragemAtual}
+          kmTrocaOleo={kmTrocaOleo}
+          setKmTrocaOleo={setKmTrocaOleo}
+          dataTrocaOleo={dataTrocaOleo}
+          setDataTrocaOleo={setDataTrocaOleo}
+          validadeKm={validadeKm}
+          setValidadeKm={setValidadeKm}
+          validadeMeses={validadeMeses}
+          setValidadeMeses={setValidadeMeses}
+        />
+      )}
+    </Box>
+  );
+}
