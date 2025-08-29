@@ -3,9 +3,13 @@ import {
     Box, Card, CardContent, Typography, TextField,
     Grid, Alert
 } from "@mui/material";
+import OilBarrelIcon from "@mui/icons-material/OilBarrel";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import ErrorIcon from "@mui/icons-material/Error";
 
 export default function ControleOleo({
-    quilometragemAtual, // recebe como prop
+    quilometragemAtual, // prop
     kmTrocaOleo,
     setKmTrocaOleo,
     dataTrocaOleo,
@@ -51,26 +55,87 @@ export default function ControleOleo({
         }
     }
 
+    const getStatusIcon = () => {
+        switch (statusOleo) {
+            case "ok":
+                return <CheckCircleIcon sx={{ color: "green", fontSize: 40 }} />;
+            case "alerta":
+                return <WarningAmberIcon sx={{ color: "orange", fontSize: 40 }} />;
+            case "vencido":
+                return <ErrorIcon sx={{ color: "red", fontSize: 40 }} />;
+            default:
+                return null;
+        }
+    };
+
     return (
-        <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: "900px", mx: "auto" }}>
-            <Typography variant="h4" gutterBottom align="center">
+        <Box sx={{ p: { xs: 0, md: 4 }, width: "100%", maxWidth: "100%", mx: 0 }}>
+            <Typography variant="h5" gutterBottom align="center">
                 Controle de Óleo
             </Typography>
 
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={12} md={4}>
-                    <Card sx={{ textAlign: "center", p: 2, bgcolor: "#F9FAFB", boxShadow: 3 }}>
-                        <Typography variant="h6">🛢️ Óleo</Typography>
-                        <Typography
-                            variant="h5"
-                            color={
-                                statusOleo === "ok" ? "green" :
-                                statusOleo === "alerta" ? "orange" : "red"
-                            }
-                        >
-                            {statusOleo === "ok" ? "✅ Em dia" :
-                             statusOleo === "alerta" ? "⚠️ Atenção" : "❌ Vencido"}
+            <Grid container sx={{ mb: 3, justifyContent: "center" }}>
+                <Grid item xs={12} md={6}>
+                    <Card
+                        sx={{
+                            minWidth: 350,
+                            maxWidth: "100%",
+                            p: 2,
+                            bgcolor: "#F9FAFB",
+                            boxShadow: 3,
+                            textAlign: "center",
+                        }}
+                    >
+                        {/* Ícone principal */}
+                        <OilBarrelIcon sx={{ fontSize: 50, color: "#111827", mb: 0 }} />
+
+                        {/* Título */}
+                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                            Controle de Óleo
                         </Typography>
+
+                        {/* Status com ícone ao lado */}
+                        <Box
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 1.5,
+                                p: 1,
+                                bgcolor:
+                                    statusOleo === "ok"
+                                        ? "#ECFDF5"
+                                        : statusOleo === "alerta"
+                                            ? "#FFFAEB"
+                                            : "#FEF2F2",
+                                borderRadius: 2,
+                                border:
+                                    statusOleo === "ok"
+                                        ? "1px solid #10B981"
+                                        : statusOleo === "alerta"
+                                            ? "1px solid #F59E0B"
+                                            : "1px solid #EF4444",
+                            }}
+                        >
+                            {getStatusIcon()}
+                            <Typography
+                                variant="subtitle1"
+                                sx={{ fontWeight: 600 }}
+                                color={
+                                    statusOleo === "ok"
+                                        ? "green"
+                                        : statusOleo === "alerta"
+                                            ? "orange"
+                                            : "red"
+                                }
+                            >
+                                {statusOleo === "ok"
+                                    ? "Em dia"
+                                    : statusOleo === "alerta"
+                                        ? "Atenção"
+                                        : "Vencido"}
+                            </Typography>
+                        </Box>
                     </Card>
                 </Grid>
             </Grid>
@@ -78,7 +143,12 @@ export default function ControleOleo({
             <Grid item xs={12}>
                 <Card sx={{ mb: 2 }}>
                     <CardContent>
-                        <Typography variant="h6">🛢️ Controle de Óleo</Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                            <OilBarrelIcon sx={{ fontSize: 24, color: "#111827" }} />
+                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                Controle de Óleo
+                            </Typography>
+                        </Box>
                         <TextField
                             label="Km da última troca"
                             type="number"

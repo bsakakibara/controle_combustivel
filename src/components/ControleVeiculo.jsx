@@ -36,11 +36,16 @@ export default function ControleVeiculo() {
   );
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: "900px", mx: "auto" }}>
-      <Typography variant="h4" gutterBottom align="center">
-        Controle do Veículo
-      </Typography>
-
+    <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        maxWidth: "100%",
+        mx: "auto",
+      }}
+    >
       <Tabs
         value={tabIndex}
         onChange={(e, newValue) => setTabIndex(newValue)}

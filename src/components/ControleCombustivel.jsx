@@ -4,9 +4,14 @@ import {
   Table, TableHead, TableRow, TableCell, TableBody,
   Grid, Alert
 } from "@mui/material";
-import {
-  RadialBarChart, RadialBar, Legend, ResponsiveContainer
-} from "recharts";
+import ReactSpeedometer from "react-d3-speedometer";
+// Ícones MUI
+import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
+import SpeedIcon from "@mui/icons-material/Speed";
+import SettingsIcon from "@mui/icons-material/Settings";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import DonutLargeIcon from "@mui/icons-material/DonutLarge";
+import HistoryIcon from "@mui/icons-material/History";
 
 export default function ControleCombustivel() {
   // Configurações iniciais (se não existir no localStorage)
@@ -85,23 +90,30 @@ export default function ControleCombustivel() {
   ];
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: "900px", mx: "auto" }}>
-      <Typography variant="h4" gutterBottom align="center">
+    <Box sx={{ p: { xs: 0, md: 4 }, width: "100%", maxWidth: "100%", mx: 0 }}>
+      <Typography variant="h5" gutterBottom align="center">
         Controle de Combustível
       </Typography>
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={2} sx={{ mb: 3, justifyContent: "center" }}>
         <Grid item xs={12} md={6}>
           <Card sx={{ textAlign: "center", p: 2, bgcolor: "#F9FAFB", boxShadow: 3 }}>
-            <Typography variant="h6" color="textPrimary">⛽ Autonomia</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
+              <LocalGasStationIcon sx={{ fontSize: 28 }} />
+              <Typography variant="h6">Autonomia</Typography>
+            </Box>
             <Typography variant="h5" color={autonomiaRestante > 100 ? "green" : "error"}>
               {autonomiaRestante.toFixed(0)} km
             </Typography>
           </Card>
         </Grid>
+
         <Grid item xs={12} md={6}>
           <Card sx={{ textAlign: "center", p: 2, bgcolor: "#F9FAFB", boxShadow: 3 }}>
-            <Typography variant="h6" color="textPrimary">🚗 Consumo</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
+              <SpeedIcon sx={{ fontSize: 28 }} />
+              <Typography variant="h6">Consumo</Typography>
+            </Box>
             <Typography variant="h5" color="primary">
               {consumoMedio.toFixed(1)} km/L
             </Typography>
@@ -109,12 +121,16 @@ export default function ControleCombustivel() {
         </Grid>
       </Grid>
 
-
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
           <Card sx={{ mb: 2 }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>⚙️ Configurações</Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                <SettingsIcon sx={{ fontSize: 24, color: "#111827" }} />
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Configurações
+                </Typography>
+              </Box>
               <TextField
                 label="Capacidade do Tanque (L)"
                 type="number"
@@ -136,7 +152,13 @@ export default function ControleCombustivel() {
         <Grid item xs={12} md={6}>
           <Card sx={{ mb: 2 }}>
             <CardContent>
-              <Typography variant="h6">📝 Registrar Abastecimento</Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                <EditNoteIcon sx={{ fontSize: 24, color: "#111827" }} />
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Registrar Abastecimento
+                </Typography>
+              </Box>
+
               <TextField
                 label="Km Atual"
                 type="number"
@@ -167,35 +189,23 @@ export default function ControleCombustivel() {
       {quilometragemInicial !== null && (
         <Card sx={{ mb: 2 }}>
           <CardContent sx={{ textAlign: "center" }}>
-            <Typography variant="h6" gutterBottom>📊 Nível do Tanque</Typography>
-            <Box sx={{ width: "100%", height: 250 }}>
-              <ResponsiveContainer>
-                <RadialBarChart
-                  innerRadius="70%"
-                  outerRadius="100%"
-                  data={data}
-                  startAngle={180}
-                  endAngle={0}
-                >
-                  <RadialBar
-                    minAngle={15}
-                    background
-                    clockWise
-                    dataKey="value"
-                  />
-                  <Legend
-                    iconSize={10}
-                    layout="vertical"
-                    verticalAlign="middle"
-                    wrapperStyle={{ right: 0 }}
-                  />
-                </RadialBarChart>
-              </ResponsiveContainer>
+            <Typography variant="h6" gutterBottom><DonutLargeIcon /> Nível do Tanque</Typography>
+            <Box sx={{ width: "100%", maxWidth: 400, mx: "auto" }}>
+              <ReactSpeedometer
+                maxValue={capacidadeTanque}
+                value={litrosRestantes}
+                needleColor="#111827"
+                startColor="#EF4444"
+                segments={5}
+                endColor="#10B981"
+                textColor="#111827"
+                ringWidth={20}
+                currentValueText="Restante: ${value} L"
+                height={250}
+                width={350}
+              />
             </Box>
-            <Typography variant="h6">
-              Restante: {litrosRestantes.toFixed(1)} L
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography variant="body1" color="text.secondary" mt={1}>
               Autonomia: {autonomiaRestante.toFixed(0)} km
             </Typography>
           </CardContent>
@@ -205,7 +215,7 @@ export default function ControleCombustivel() {
       {historico.length > 0 && (
         <Card>
           <CardContent>
-            <Typography variant="h6" gutterBottom>📜 Histórico de Abastecimentos</Typography>
+            <Typography variant="h6" gutterBottom><HistoryIcon /> Histórico de Abastecimentos</Typography>
             <Table size="small">
               <TableHead>
                 <TableRow>
