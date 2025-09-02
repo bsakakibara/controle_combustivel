@@ -67,7 +67,7 @@ export default function ControleCombustivel() {
       const ultimo = historico[historico.length - 1];
       const kmRodados = quilometragemAtual - ultimo.km;
       const litrosConsumidos = nivelAntes + litrosAbastecidos - ultimo.nivelAntes - ultimo.litros;
-      const consumoReal = kmRodados / litrosConsumidos;
+      const consumoReal = litrosConsumidos > 0 ? kmRodados / litrosConsumidos : consumoMedio;
       setConsumoMedio(Number(((consumoMedio + consumoReal) / 2).toFixed(1)));
     }
 
@@ -83,13 +83,13 @@ export default function ControleCombustivel() {
 
   if (historico.length > 0) {
     const ultimo = historico[historico.length - 1];
-    const kmBase = quilometragemInicial ?? ultimo.km; 
+    const kmBase = quilometragemInicial ?? ultimo.km;
     const kmAtualValid = quilometragemAtual ?? ultimo.km;
 
     const kmRodados = kmAtualValid - kmBase;
     const litrosDisponiveis = ultimo.nivelAntes + ultimo.litros;
 
-    litrosRestantes = Math.max(litrosDisponiveis - (kmRodados / consumoMedio || 0), 0);
+    litrosRestantes = Math.max(litrosDisponiveis - kmRodados / consumoMedio, 0);
     autonomiaRestante = litrosRestantes * consumoMedio;
   }
 
