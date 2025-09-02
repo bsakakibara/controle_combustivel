@@ -169,8 +169,17 @@ export default function ControleOleo({
                             fullWidth
                             sx={{
                                 my: 1,
-                                '& .MuiInputBase-root': { color: theme.palette.text.primary },
-                                '& .MuiInputLabel-root': { color: theme.palette.text.secondary },
+                                '& .MuiInputBase-root': {
+                                    color: theme.palette.text.primary,
+                                },
+                                '& .MuiInputLabel-root': {
+                                    color: theme.palette.text.secondary,
+                                },
+                                // Força o ícone de calendário visível
+                                '& input::-webkit-calendar-picker-indicator': {
+                                    filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'none',
+                                    cursor: 'pointer',
+                                },
                             }}
                         />
                         <TextField

@@ -33,6 +33,9 @@ export default function ControleCombustivel() {
     () => JSON.parse(localStorage.getItem("historico")) || []
   );
 
+  const corAutonomia = theme.palette.mode === "dark" ? "#22D3EE" : "#3B82F6";
+  const corConsumo = theme.palette.mode === "dark" ? "#FACC15" : "#F59E0B";
+
   // Atualizar localStorage sempre que houver alterações
   useEffect(() => {
     localStorage.setItem("capacidadeTanque", capacidadeTanque);
@@ -113,7 +116,7 @@ export default function ControleCombustivel() {
               <LocalGasStationIcon sx={{ fontSize: 28, color: theme.palette.text.primary }} />
               <Typography variant="h6" color={autonomiaRestante > 100 ? theme.palette.error.main : theme.palette.success.main}>Autonomia</Typography>
             </Box>
-            <Typography variant="h5" color="primary">
+            <Typography variant="h5" sx={{ color: theme.palette.text.primary }}>
               {autonomiaRestante.toFixed(0)} km
             </Typography>
           </Card>
@@ -125,7 +128,7 @@ export default function ControleCombustivel() {
               <SpeedIcon sx={{ fontSize: 28, color: theme.palette.text.primary }} />
               <Typography variant="h6" color={autonomiaRestante > 100 ? theme.palette.error.main : theme.palette.success.main}>Consumo</Typography>
             </Box>
-            <Typography variant="h5" color="primary">
+            <Typography variant="h5" sx={{ color: theme.palette.text.primary }}>
               {consumoMedio.toFixed(1)} km/L
             </Typography>
           </Card>
@@ -225,7 +228,7 @@ export default function ControleCombustivel() {
               <ReactSpeedometer
                 maxValue={capacidadeTanque}
                 value={litrosRestantes}
-                needleColor={theme.palette.mode === "dark" ? "#1E293B" : "#FFD700"} 
+                needleColor={theme.palette.mode === "dark" ? "#1E293B" : "#FFD700"}
                 startColor={theme.palette.error.main}
                 endColor={theme.palette.success.main}
                 textColor={theme.palette.text.primary}
