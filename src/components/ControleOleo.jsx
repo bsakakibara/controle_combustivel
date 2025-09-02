@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
     Box, Card, CardContent, Typography, TextField,
-    Grid, Alert
+    Grid, Alert, useTheme
 } from "@mui/material";
 import OilBarrelIcon from "@mui/icons-material/OilBarrel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -9,7 +9,7 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import ErrorIcon from "@mui/icons-material/Error";
 
 export default function ControleOleo({
-    quilometragemAtual, // prop
+    quilometragemAtual,
     kmTrocaOleo,
     setKmTrocaOleo,
     dataTrocaOleo,
@@ -19,6 +19,8 @@ export default function ControleOleo({
     validadeMeses,
     setValidadeMeses
 }) {
+    const theme = useTheme();
+
     // Atualizar localStorage sempre que houver alterações
     useEffect(() => {
         localStorage.setItem("kmTrocaOleo", kmTrocaOleo ?? "");
@@ -58,13 +60,26 @@ export default function ControleOleo({
     const getStatusIcon = () => {
         switch (statusOleo) {
             case "ok":
-                return <CheckCircleIcon sx={{ color: "green", fontSize: 40 }} />;
+                return <CheckCircleIcon sx={{ color: theme.palette.mode === "light" ? "#10B981" : "#00FFAB", fontSize: 40 }} />;
             case "alerta":
-                return <WarningAmberIcon sx={{ color: "orange", fontSize: 40 }} />;
+                return <WarningAmberIcon sx={{ color: theme.palette.mode === "light" ? "#F59E0B" : "#FACC15", fontSize: 40 }} />;
             case "vencido":
-                return <ErrorIcon sx={{ color: "red", fontSize: 40 }} />;
+                return <ErrorIcon sx={{ color: theme.palette.mode === "light" ? "#EF4444" : "#F87171", fontSize: 40 }} />;
             default:
                 return null;
+        }
+    };
+
+    const getStatusColor = () => {
+        switch (statusOleo) {
+            case "ok":
+                return theme.palette.mode === "light" ? "#10B981" : "#00FFAB";
+            case "alerta":
+                return theme.palette.mode === "light" ? "#F59E0B" : "#FACC15";
+            case "vencido":
+                return theme.palette.mode === "light" ? "#EF4444" : "#F87171";
+            default:
+                return theme.palette.text.primary;
         }
     };
 
@@ -81,20 +96,16 @@ export default function ControleOleo({
                             minWidth: 350,
                             maxWidth: "100%",
                             p: 2,
-                            bgcolor: "#F9FAFB",
+                            bgcolor: theme.palette.background.paper,
                             boxShadow: 3,
                             textAlign: "center",
                         }}
                     >
-                        {/* Ícone principal */}
-                        <OilBarrelIcon sx={{ fontSize: 50, color: "#111827", mb: 0 }} />
-
-                        {/* Título */}
-                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                        <OilBarrelIcon sx={{ fontSize: 50, color: theme.palette.text.primary, mb: 0 }} />
+                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: theme.palette.text.primary }}>
                             Controle de Óleo
                         </Typography>
 
-                        {/* Status com ícone ao lado */}
                         <Box
                             sx={{
                                 display: "flex",
@@ -104,30 +115,18 @@ export default function ControleOleo({
                                 p: 1,
                                 bgcolor:
                                     statusOleo === "ok"
-                                        ? "#ECFDF5"
+                                        ? theme.palette.mode === "light" ? "#ECFDF5" : "#00331F"
                                         : statusOleo === "alerta"
-                                            ? "#FFFAEB"
-                                            : "#FEF2F2",
+                                            ? theme.palette.mode === "light" ? "#FFFAEB" : "#332900"
+                                            : theme.palette.mode === "light" ? "#FEF2F2" : "#330000",
                                 borderRadius: 2,
-                                border:
-                                    statusOleo === "ok"
-                                        ? "1px solid #10B981"
-                                        : statusOleo === "alerta"
-                                            ? "1px solid #F59E0B"
-                                            : "1px solid #EF4444",
+                                border: `1px solid ${getStatusColor()}`,
                             }}
                         >
                             {getStatusIcon()}
                             <Typography
                                 variant="subtitle1"
-                                sx={{ fontWeight: 600 }}
-                                color={
-                                    statusOleo === "ok"
-                                        ? "green"
-                                        : statusOleo === "alerta"
-                                            ? "orange"
-                                            : "red"
-                                }
+                                sx={{ fontWeight: 600, color: getStatusColor() }}
                             >
                                 {statusOleo === "ok"
                                     ? "Em dia"
@@ -141,11 +140,11 @@ export default function ControleOleo({
             </Grid>
 
             <Grid item xs={12}>
-                <Card sx={{ mb: 2 }}>
+                <Card sx={{ mb: 2, bgcolor: theme.palette.background.paper }}>
                     <CardContent>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-                            <OilBarrelIcon sx={{ fontSize: 24, color: "#111827" }} />
-                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            <OilBarrelIcon sx={{ fontSize: 24, color: theme.palette.text.primary }} />
+                            <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
                                 Controle de Óleo
                             </Typography>
                         </Box>
@@ -154,7 +153,12 @@ export default function ControleOleo({
                             type="number"
                             value={kmTrocaOleo ?? ""}
                             onChange={(e) => setKmTrocaOleo(Number(e.target.value))}
-                            fullWidth sx={{ my: 1 }}
+                            fullWidth
+                            sx={{
+                                my: 1,
+                                '& .MuiInputBase-root': { color: theme.palette.text.primary },
+                                '& .MuiInputLabel-root': { color: theme.palette.text.secondary },
+                            }}
                         />
                         <TextField
                             label="Data da última troca"
@@ -162,25 +166,47 @@ export default function ControleOleo({
                             InputLabelProps={{ shrink: true }}
                             value={dataTrocaOleo}
                             onChange={(e) => setDataTrocaOleo(e.target.value)}
-                            fullWidth sx={{ my: 1 }}
+                            fullWidth
+                            sx={{
+                                my: 1,
+                                '& .MuiInputBase-root': { color: theme.palette.text.primary },
+                                '& .MuiInputLabel-root': { color: theme.palette.text.secondary },
+                            }}
                         />
                         <TextField
                             label="Validade (Km)"
                             type="number"
                             value={validadeKm}
                             onChange={(e) => setValidadeKm(Number(e.target.value))}
-                            fullWidth sx={{ my: 1 }}
+                            fullWidth
+                            sx={{
+                                my: 1,
+                                '& .MuiInputBase-root': { color: theme.palette.text.primary },
+                                '& .MuiInputLabel-root': { color: theme.palette.text.secondary },
+                            }}
                         />
                         <TextField
                             label="Validade (Meses)"
                             type="number"
                             value={validadeMeses}
                             onChange={(e) => setValidadeMeses(Number(e.target.value))}
-                            fullWidth sx={{ my: 1 }}
+                            fullWidth
+                            sx={{
+                                my: 1,
+                                '& .MuiInputBase-root': { color: theme.palette.text.primary },
+                                '& .MuiInputLabel-root': { color: theme.palette.text.secondary },
+                            }}
                         />
 
                         {msgOleo && (
-                            <Alert severity={statusOleo === "vencido" ? "error" : "warning"} sx={{ mt: 2 }}>
+                            <Alert
+                                severity={statusOleo === "vencido" ? "error" : "warning"}
+                                sx={{
+                                    mt: 2,
+                                    bgcolor: theme.palette.mode === "light" ? undefined : "#1A1A1A",
+                                    color: theme.palette.mode === "dark" ? "#FFFFFF" : undefined
+                                }}
+                            >
                                 {msgOleo}
                             </Alert>
                         )}

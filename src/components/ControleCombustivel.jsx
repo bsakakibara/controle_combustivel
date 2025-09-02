@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Box, Card, CardContent, Typography, Button, TextField,
   Table, TableHead, TableRow, TableCell, TableBody,
-  Grid, Alert
+  Grid
 } from "@mui/material";
 import ReactSpeedometer from "react-d3-speedometer";
 // Ícones MUI
@@ -12,9 +12,11 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import DonutLargeIcon from "@mui/icons-material/DonutLarge";
 import HistoryIcon from "@mui/icons-material/History";
+import { useTheme } from "@mui/material/styles";
 
 export default function ControleCombustivel() {
   // Configurações iniciais (se não existir no localStorage)
+  const theme = useTheme();
   const [capacidadeTanque, setCapacidadeTanque] = useState(
     () => Number(localStorage.getItem("capacidadeTanque")) || 58
   );
@@ -90,29 +92,38 @@ export default function ControleCombustivel() {
   ];
 
   return (
-    <Box sx={{ p: { xs: 0, md: 4 }, width: "100%", maxWidth: "100%", mx: 0 }}>
+    <Box
+      sx={{
+        p: { xs: 0, md: 4 },
+        width: "100%",
+        maxWidth: "100%",
+        mx: 0,
+        bbgcolor: theme.palette.background.default,
+        minHeight: "100vh"
+      }}
+    >
       <Typography variant="h5" gutterBottom align="center">
         Controle de Combustível
       </Typography>
 
       <Grid container spacing={2} sx={{ mb: 3, justifyContent: "center" }}>
         <Grid item xs={12} md={6}>
-          <Card sx={{ textAlign: "center", p: 2, bgcolor: "#F9FAFB", boxShadow: 3 }}>
+          <Card sx={{ textAlign: "center", p: 2, bgcolor: theme.palette.background.paper, boxShadow: 3 }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
-              <LocalGasStationIcon sx={{ fontSize: 28 }} />
-              <Typography variant="h6">Autonomia</Typography>
+              <LocalGasStationIcon sx={{ fontSize: 28, color: theme.palette.text.primary }} />
+              <Typography variant="h6" color={autonomiaRestante > 100 ? theme.palette.error.main : theme.palette.success.main}>Autonomia</Typography>
             </Box>
-            <Typography variant="h5" color={autonomiaRestante > 100 ? "green" : "error"}>
+            <Typography variant="h5" color="primary">
               {autonomiaRestante.toFixed(0)} km
             </Typography>
           </Card>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Card sx={{ textAlign: "center", p: 2, bgcolor: "#F9FAFB", boxShadow: 3 }}>
+          <Card sx={{ textAlign: "center", p: 2, bgcolor: theme.palette.background.paper, boxShadow: 3 }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
-              <SpeedIcon sx={{ fontSize: 28 }} />
-              <Typography variant="h6">Consumo</Typography>
+              <SpeedIcon sx={{ fontSize: 28, color: theme.palette.text.primary }} />
+              <Typography variant="h6" color={autonomiaRestante > 100 ? theme.palette.error.main : theme.palette.success.main}>Consumo</Typography>
             </Box>
             <Typography variant="h5" color="primary">
               {consumoMedio.toFixed(1)} km/L
@@ -126,7 +137,7 @@ export default function ControleCombustivel() {
           <Card sx={{ mb: 2 }}>
             <CardContent>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-                <SettingsIcon sx={{ fontSize: 24, color: "#111827" }} />
+                <SettingsIcon sx={{ fontSize: 24, color: theme.palette.text.primary }} />
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
                   Configurações
                 </Typography>
@@ -136,14 +147,34 @@ export default function ControleCombustivel() {
                 type="number"
                 value={capacidadeTanque}
                 onChange={(e) => setCapacidadeTanque(Number(e.target.value))}
-                fullWidth sx={{ my: 1 }}
+                fullWidth
+                sx={{
+                  my: 1,
+                  '& .MuiInputBase-root': {
+                    color: theme.palette.text.primary,
+                    backgroundColor: theme.palette.background.paper,
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: theme.palette.text.secondary,
+                  },
+                }}
               />
               <TextField
                 label="Consumo Médio (km/L)"
                 type="number"
                 value={consumoMedio}
                 onChange={(e) => setConsumoMedio(Number(e.target.value))}
-                fullWidth sx={{ my: 1 }}
+                fullWidth
+                sx={{
+                  my: 1,
+                  '& .MuiInputBase-root': {
+                    color: theme.palette.text.primary,
+                    backgroundColor: theme.palette.background.paper,
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: theme.palette.text.secondary,
+                  },
+                }}
               />
             </CardContent>
           </Card>
@@ -153,7 +184,7 @@ export default function ControleCombustivel() {
           <Card sx={{ mb: 2 }}>
             <CardContent>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-                <EditNoteIcon sx={{ fontSize: 24, color: "#111827" }} />
+                <EditNoteIcon sx={{ fontSize: 24, color: theme.palette.text.primary }} />
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
                   Registrar Abastecimento
                 </Typography>
@@ -194,18 +225,24 @@ export default function ControleCombustivel() {
               <ReactSpeedometer
                 maxValue={capacidadeTanque}
                 value={litrosRestantes}
-                needleColor="#111827"
-                startColor="#EF4444"
-                segments={5}
-                endColor="#10B981"
-                textColor="#111827"
+                needleColor={theme.palette.text.primary}
+                startColor={theme.palette.error.main}
+                endColor={theme.palette.success.main}
+                textColor={theme.palette.text.primary}
                 ringWidth={20}
                 currentValueText="Restante: ${value} L"
                 height={250}
                 width={350}
               />
             </Box>
-            <Typography variant="body1" color="text.secondary" mt={1}>
+            <Typography
+              variant="h5"
+              color={
+                autonomiaRestante > 100
+                  ? theme.palette.success.main
+                  : theme.palette.error.main
+              }
+            >
               Autonomia: {autonomiaRestante.toFixed(0)} km
             </Typography>
           </CardContent>

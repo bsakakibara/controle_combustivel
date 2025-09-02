@@ -2,9 +2,15 @@ import { useState } from "react";
 import { Box, Typography, Tabs, Tab } from "@mui/material";
 import ControleOleo from "./ControleOleo";
 import ControleCombustivel from "./ControleCombustivel";
+import { IconButton } from "@mui/material";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
+import { useTheme } from "@mui/material/styles";
 
-export default function ControleVeiculo() {
+export default function ControleVeiculo({ darkMode, setDarkMode }) {
   const [tabIndex, setTabIndex] = useState(0);
+  const theme = useTheme();
+  const toggleDarkMode = () => setDarkMode(!darkMode);
 
   const [capacidadeTanque, setCapacidadeTanque] = useState(
     () => Number(localStorage.getItem("capacidadeTanque")) || 58
@@ -46,6 +52,13 @@ export default function ControleVeiculo() {
         mx: "auto",
       }}
     >
+
+      <Box sx={{ display: "flex", justifyContent: "flex-end", px: 2, py: 1 }}>
+        <IconButton onClick={toggleDarkMode} sx={{ color: theme.palette.text.primary }}>
+          {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+        </IconButton>
+      </Box>
+
       <Tabs
         value={tabIndex}
         onChange={(e, newValue) => setTabIndex(newValue)}
