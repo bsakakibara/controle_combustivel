@@ -5,7 +5,6 @@ import {
   Grid
 } from "@mui/material";
 import ReactSpeedometer from "react-d3-speedometer";
-// Ícones MUI
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import SpeedIcon from "@mui/icons-material/Speed";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -15,28 +14,25 @@ import HistoryIcon from "@mui/icons-material/History";
 import { useTheme } from "@mui/material/styles";
 
 export default function ControleCombustivel() {
-  // Configurações iniciais (se não existir no localStorage)
   const theme = useTheme();
+
   const [capacidadeTanque, setCapacidadeTanque] = useState(
     () => Number(localStorage.getItem("capacidadeTanque")) || 58
   );
   const [consumoMedio, setConsumoMedio] = useState(
     () => Number(localStorage.getItem("consumoMedio")) || 8
   );
-
   const [quilometragemInicial, setQuilometragemInicial] = useState(
     () => Number(localStorage.getItem("quilometragemInicial")) || null
   );
   const [quilometragemAtual, setQuilometragemAtual] = useState(null);
   const [litrosAbastecidos, setLitrosAbastecidos] = useState(0);
+  const [nivelAntes, setNivelAntes] = useState(0);
   const [historico, setHistorico] = useState(
     () => JSON.parse(localStorage.getItem("historico")) || []
   );
 
-  const corAutonomia = theme.palette.mode === "dark" ? "#22D3EE" : "#3B82F6";
-  const corConsumo = theme.palette.mode === "dark" ? "#FACC15" : "#F59E0B";
-
-  // Atualizar localStorage sempre que houver alterações
+  // Atualizar localStorage
   useEffect(() => {
     localStorage.setItem("capacidadeTanque", capacidadeTanque);
     localStorage.setItem("consumoMedio", consumoMedio);
@@ -44,13 +40,18 @@ export default function ControleCombustivel() {
     localStorage.setItem("historico", JSON.stringify(historico));
   }, [capacidadeTanque, consumoMedio, quilometragemInicial, historico]);
 
-  // Carregar última quilometragem do histórico ao iniciar
+  // Inicializa quilometragem atual se houver histórico
   useEffect(() => {
     if (!quilometragemAtual && historico.length > 0) {
       setQuilometragemAtual(historico[historico.length - 1].km);
+      setNivelAntes(
+        historico[historico.length - 1].nivelAntes +
+        historico[historico.length - 1].litros
+      );
     }
   }, [historico]);
 
+  // Registrar abastecimento
   const handleAbastecer = () => {
     if (!quilometragemAtual || !litrosAbastecidos) return;
 
@@ -58,41 +59,39 @@ export default function ControleCombustivel() {
       data: new Date().toLocaleDateString(),
       km: quilometragemAtual,
       litros: litrosAbastecidos,
+      nivelAntes: nivelAntes
     };
 
-    // Calcular consumo médio real
+    // Calcular consumo real considerando nível antes + litros abastecidos
     if (historico.length > 0) {
       const ultimo = historico[historico.length - 1];
       const kmRodados = quilometragemAtual - ultimo.km;
-      const consumoReal = kmRodados / litrosAbastecidos;
+      const litrosConsumidos = nivelAntes + litrosAbastecidos - ultimo.nivelAntes - ultimo.litros;
+      const consumoReal = kmRodados / litrosConsumidos;
       setConsumoMedio(Number(((consumoMedio + consumoReal) / 2).toFixed(1)));
     }
 
     setHistorico([...historico, novo]);
     setQuilometragemInicial(quilometragemAtual);
     setLitrosAbastecidos(0);
+    setNivelAntes(0);
   };
 
-  // Cálculo do tanque de combustivel atual
+  // Cálculo do tanque
   let litrosRestantes = 0;
   let autonomiaRestante = 0;
 
-  if (quilometragemInicial !== null && historico.length > 0) {
-    const kmAtual = quilometragemAtual ?? historico[historico.length - 1].km;
-    const kmRodados = kmAtual - quilometragemInicial;
-    const litrosConsumidos = kmRodados / consumoMedio;
-    const litrosUltimoAbastecimento = historico[historico.length - 1].litros;
-    litrosRestantes = Math.max(litrosUltimoAbastecimento - litrosConsumidos, 0);
+  if (historico.length > 0) {
+    const ultimo = historico[historico.length - 1];
+    const kmBase = quilometragemInicial ?? ultimo.km; 
+    const kmAtualValid = quilometragemAtual ?? ultimo.km;
+
+    const kmRodados = kmAtualValid - kmBase;
+    const litrosDisponiveis = ultimo.nivelAntes + ultimo.litros;
+
+    litrosRestantes = Math.max(litrosDisponiveis - (kmRodados / consumoMedio || 0), 0);
     autonomiaRestante = litrosRestantes * consumoMedio;
   }
-
-  const data = [
-    {
-      name: "Combustível",
-      value: (litrosRestantes / capacidadeTanque) * 100,
-      fill: litrosRestantes > 10 ? "#10B981" : "#EF4444",
-    },
-  ];
 
   return (
     <Box
@@ -114,7 +113,9 @@ export default function ControleCombustivel() {
           <Card sx={{ textAlign: "center", p: 2, bgcolor: theme.palette.background.paper, boxShadow: 3 }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
               <LocalGasStationIcon sx={{ fontSize: 28, color: theme.palette.text.primary }} />
-              <Typography variant="h6" color={autonomiaRestante > 100 ? theme.palette.error.main : theme.palette.success.main}>Autonomia</Typography>
+              <Typography variant="h6" color={autonomiaRestante > 100 ? theme.palette.error.main : theme.palette.success.main}>
+                Autonomia
+              </Typography>
             </Box>
             <Typography variant="h5" sx={{ color: theme.palette.text.primary }}>
               {autonomiaRestante.toFixed(0)} km
@@ -126,7 +127,9 @@ export default function ControleCombustivel() {
           <Card sx={{ textAlign: "center", p: 2, bgcolor: theme.palette.background.paper, boxShadow: 3 }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
               <SpeedIcon sx={{ fontSize: 28, color: theme.palette.text.primary }} />
-              <Typography variant="h6" color={autonomiaRestante > 100 ? theme.palette.error.main : theme.palette.success.main}>Consumo</Typography>
+              <Typography variant="h6" color={autonomiaRestante > 100 ? theme.palette.error.main : theme.palette.success.main}>
+                Consumo
+              </Typography>
             </Box>
             <Typography variant="h5" sx={{ color: theme.palette.text.primary }}>
               {consumoMedio.toFixed(1)} km/L
@@ -153,13 +156,8 @@ export default function ControleCombustivel() {
                 fullWidth
                 sx={{
                   my: 1,
-                  '& .MuiInputBase-root': {
-                    color: theme.palette.text.primary,
-                    backgroundColor: theme.palette.background.paper,
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: theme.palette.text.secondary,
-                  },
+                  '& .MuiInputBase-root': { color: theme.palette.text.primary, backgroundColor: theme.palette.background.paper },
+                  '& .MuiInputLabel-root': { color: theme.palette.text.secondary },
                 }}
               />
               <TextField
@@ -170,13 +168,8 @@ export default function ControleCombustivel() {
                 fullWidth
                 sx={{
                   my: 1,
-                  '& .MuiInputBase-root': {
-                    color: theme.palette.text.primary,
-                    backgroundColor: theme.palette.background.paper,
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: theme.palette.text.secondary,
-                  },
+                  '& .MuiInputBase-root': { color: theme.palette.text.primary, backgroundColor: theme.palette.background.paper },
+                  '& .MuiInputLabel-root': { color: theme.palette.text.secondary },
                 }}
               />
             </CardContent>
@@ -192,7 +185,6 @@ export default function ControleCombustivel() {
                   Registrar Abastecimento
                 </Typography>
               </Box>
-
               <TextField
                 label="Km Atual"
                 type="number"
@@ -205,6 +197,13 @@ export default function ControleCombustivel() {
                 type="number"
                 value={litrosAbastecidos || ""}
                 onChange={(e) => setLitrosAbastecidos(Number(e.target.value))}
+                fullWidth sx={{ my: 1 }}
+              />
+              <TextField
+                label="Nível do tanque antes (L)"
+                type="number"
+                value={nivelAntes || ""}
+                onChange={(e) => setNivelAntes(Number(e.target.value))}
                 fullWidth sx={{ my: 1 }}
               />
               <Button
@@ -233,18 +232,14 @@ export default function ControleCombustivel() {
                 endColor={theme.palette.success.main}
                 textColor={theme.palette.text.primary}
                 ringWidth={20}
-                currentValueText="Restante: ${value} L"
+                currentValueText={`Restante: ${litrosRestantes.toFixed(1)} L`}
                 height={250}
                 width={350}
               />
             </Box>
             <Typography
               variant="h5"
-              color={
-                autonomiaRestante > 100
-                  ? theme.palette.success.main
-                  : theme.palette.error.main
-              }
+              color={autonomiaRestante > 100 ? theme.palette.success.main : theme.palette.error.main}
             >
               Autonomia: {autonomiaRestante.toFixed(0)} km
             </Typography>
@@ -262,6 +257,7 @@ export default function ControleCombustivel() {
                   <TableCell>Data</TableCell>
                   <TableCell>Km</TableCell>
                   <TableCell>Litros</TableCell>
+                  <TableCell>Nível Antes</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -270,6 +266,7 @@ export default function ControleCombustivel() {
                     <TableCell>{item.data}</TableCell>
                     <TableCell>{item.km}</TableCell>
                     <TableCell>{item.litros}</TableCell>
+                    <TableCell>{item.nivelAntes}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

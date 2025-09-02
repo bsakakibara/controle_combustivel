@@ -44,17 +44,27 @@ export default function ControleVeiculo({ darkMode, setDarkMode }) {
   return (
     <Box
       sx={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         width: "100%",
         maxWidth: "100%",
         mx: "auto",
+        bgcolor: "background.default",
       }}
     >
 
       <Box sx={{ display: "flex", justifyContent: "flex-end", px: 2, py: 1 }}>
-        <IconButton onClick={toggleDarkMode} sx={{ color: theme.palette.text.primary }}>
+        <IconButton
+          onClick={toggleDarkMode}
+          sx={{
+            color: theme.palette.text.primary,
+            borderRadius: 12,
+            border: "1px solid",
+            borderColor: theme.palette.divider,
+            p: 1.2
+          }}
+        >
           {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
         </IconButton>
       </Box>
