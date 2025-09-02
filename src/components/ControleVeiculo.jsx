@@ -73,6 +73,7 @@ export default function ControleVeiculo({ darkMode, setDarkMode }) {
 
       {tabIndex === 0 && (
         <ControleCombustivel
+          darkMode={darkMode}
           capacidadeTanque={capacidadeTanque}
           setCapacidadeTanque={setCapacidadeTanque}
           consumoMedio={consumoMedio}

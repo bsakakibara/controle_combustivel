@@ -98,7 +98,7 @@ export default function ControleCombustivel() {
         width: "100%",
         maxWidth: "100%",
         mx: 0,
-        bbgcolor: theme.palette.background.default,
+        bgcolor: theme.palette.background.default,
         minHeight: "100vh"
       }}
     >
@@ -225,7 +225,7 @@ export default function ControleCombustivel() {
               <ReactSpeedometer
                 maxValue={capacidadeTanque}
                 value={litrosRestantes}
-                needleColor={theme.palette.text.primary}
+                needleColor={theme.palette.mode === "dark" ? "#1E293B" : "#FFD700"} 
                 startColor={theme.palette.error.main}
                 endColor={theme.palette.success.main}
                 textColor={theme.palette.text.primary}
