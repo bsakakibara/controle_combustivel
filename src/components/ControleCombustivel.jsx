@@ -138,7 +138,7 @@ export default function ControleCombustivel() {
         </Grid>
       </Grid>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={2} justifyContent="center">
         <Grid item xs={12} md={6}>
           <Card sx={{ mb: 2 }}>
             <CardContent>
