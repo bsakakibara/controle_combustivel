@@ -12,6 +12,8 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import DonutLargeIcon from "@mui/icons-material/DonutLarge";
 import HistoryIcon from "@mui/icons-material/History";
 import { useTheme } from "@mui/material/styles";
+import { Edit } from "@mui/icons-material";
+import ModalEditar from "./modals/ModalEditar";
 
 export default function ControleCombustivel() {
   const theme = useTheme();
@@ -32,6 +34,9 @@ export default function ControleCombustivel() {
     () => JSON.parse(localStorage.getItem("historico")) || []
   );
 
+  const [modalAberto, setModalAberto] = useState(false);
+  const [itemEditando, setItemEditando] = useState(null);
+
   // Atualizar localStorage
   useEffect(() => {
     localStorage.setItem("capacidadeTanque", capacidadeTanque);
@@ -42,14 +47,13 @@ export default function ControleCombustivel() {
 
   // Inicializa quilometragem atual se houver histórico
   useEffect(() => {
-    if (!quilometragemAtual && historico.length > 0) {
-      setQuilometragemAtual(historico[historico.length - 1].km);
-      setNivelAntes(
-        historico[historico.length - 1].nivelAntes +
-        historico[historico.length - 1].litros
-      );
+    if (historico.length > 0) {
+      const ultimo = historico[historico.length - 1];
+      setNivelAntes(ultimo.nivelAntes + ultimo.litros);
+    } else {
+      setNivelAntes(0);
     }
-  }, [historico]);
+  }, [quilometragemAtual, historico]);
 
   // Registrar abastecimento
   const handleAbastecer = () => {
@@ -92,6 +96,24 @@ export default function ControleCombustivel() {
     litrosRestantes = Math.max(litrosDisponiveis - kmRodados / consumoMedio, 0);
     autonomiaRestante = litrosRestantes * consumoMedio;
   }
+
+  const abrirModal = (item, index) => {
+    setItemEditando({ ...item, index });
+    setModalAberto(true);
+  };
+
+  const salvarEdicao = () => {
+    const novoHistorico = [...historico];
+    novoHistorico[itemEditando.index] = {
+      data: itemEditando.data,
+      km: Number(itemEditando.km),
+      litros: Number(itemEditando.litros),
+      nivelAntes: Number(itemEditando.nivelAntes),
+    };
+    setHistorico(novoHistorico);
+    setModalAberto(false);
+    setItemEditando(null);
+  };
 
   return (
     <Box
@@ -210,10 +232,28 @@ export default function ControleCombustivel() {
                 variant="contained"
                 color="primary"
                 onClick={handleAbastecer}
-                fullWidth
+                fullWidth sx={{ mt: 1 }}
               >
                 Registrar
               </Button>
+            </CardContent>
+          </Card>
+          <Card sx={{ mb: 2 }}>
+            <CardContent>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                <SpeedIcon sx={{ fontSize: 24, color: theme.palette.text.primary }} />
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Atualizar Quilometragem
+                </Typography>
+              </Box>
+              <TextField
+                label="Km Atual"
+                type="number"
+                value={quilometragemAtual ?? ""}
+                onChange={(e) => setQuilometragemAtual(Number(e.target.value))}
+                fullWidth
+                sx={{ my: 1 }}
+              />
             </CardContent>
           </Card>
         </Grid>
@@ -227,10 +267,10 @@ export default function ControleCombustivel() {
               <ReactSpeedometer
                 maxValue={capacidadeTanque}
                 value={litrosRestantes}
-                needleColor={theme.palette.mode === "dark" ? "#1E293B" : "#FFD700"}
+                needleColor={theme.palette.mode === "dark" ? "#FFD700" : "#1E293B"}
                 startColor={theme.palette.error.main}
                 endColor={theme.palette.success.main}
-                textColor={theme.palette.text.primary}
+                textColor={theme.palette.mode === "dark" ? "#E0E0FF" : "#000"}
                 ringWidth={20}
                 currentValueText={`Restante: ${litrosRestantes.toFixed(1)} L`}
                 height={250}
@@ -257,7 +297,7 @@ export default function ControleCombustivel() {
                   <TableCell>Data</TableCell>
                   <TableCell>Km</TableCell>
                   <TableCell>Litros</TableCell>
-                  <TableCell>Nível Antes</TableCell>
+                  <TableCell>Nível A</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -267,6 +307,10 @@ export default function ControleCombustivel() {
                     <TableCell>{item.km}</TableCell>
                     <TableCell>{item.litros}</TableCell>
                     <TableCell>{item.nivelAntes}</TableCell>
+                    <Edit
+                      sx={{ cursor: "pointer", color: theme.palette.primary.main }}
+                      onClick={() => abrirModal(item, index)}
+                    />
                   </TableRow>
                 ))}
               </TableBody>
@@ -274,6 +318,31 @@ export default function ControleCombustivel() {
           </CardContent>
         </Card>
       )}
+      <ModalEditar
+        aberto={modalAberto}
+        item={itemEditando}
+        setItemEditando={setItemEditando}
+        onFechar={() => setModalAberto(false)}
+        onSalvar={(itemEditado) => {
+          const novoHistorico = [...historico];
+          novoHistorico[itemEditado.index] = {
+            data: itemEditado.data,
+            km: Number(itemEditado.km),
+            litros: Number(itemEditado.litros),
+            nivelAntes: Number(itemEditado.nivelAntes),
+            index: itemEditado.index
+          };
+          setHistorico(novoHistorico);
+          setModalAberto(false);
+          setItemEditando(null);
+        }}
+        onExcluir={(index) => {
+          const novoHistorico = historico.filter((_, i) => i !== index);
+          setHistorico(novoHistorico);
+          setModalAberto(false);
+          setItemEditando(null);
+        }}
+      />
     </Box>
   );
 }

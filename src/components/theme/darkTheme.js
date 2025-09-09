@@ -29,9 +29,9 @@ const darkTheme = createTheme({
   },
   typography: {
     fontFamily: "Inter, Roboto, sans-serif",
-    h4: { fontWeight: 700, color: "#E0E0FF" },
-    h5: { fontWeight: 700, color: "#E0E0FF" },
-    h6: { fontWeight: 600, color: "#E0E0FF" },
+    h4: { fontWeight: 600, color: "#E0E0FF" },
+    h5: { fontWeight: 600, color: "#E0E0FF" },
+    h6: { fontWeight: 500, color: "#E0E0FF" },
     subtitle1: { color: "#A0A0FF" },
     body1: { color: "#C0C0FF" },
   },

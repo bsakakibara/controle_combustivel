@@ -59,10 +59,12 @@ export default function ControleVeiculo({ darkMode, setDarkMode }) {
           onClick={toggleDarkMode}
           sx={{
             color: theme.palette.text.primary,
-            borderRadius: 12,
+            borderRadius: 0.5,
             border: "1px solid",
             borderColor: theme.palette.divider,
-            p: 1.2
+            p: 1.2,
+            width: 30,
+            height: 30,
           }}
         >
           {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
