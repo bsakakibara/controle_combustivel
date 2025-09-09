@@ -52,7 +52,7 @@ const ModalEditar = ({
                     </Box>
                     <IconButton
                         color="error"
-                        onClick={() => setConfirmarAberto(true)} // abre modal de confirmação
+                        onClick={() => setConfirmarAberto(true)} 
                     >
                         <DeleteIcon />
                     </IconButton>

@@ -22,7 +22,7 @@ const ModalConfirmacao = ({
       fullWidth
       maxWidth="xs"
       PaperProps={{
-        sx: { borderRadius: 3, p: 1 }
+        sx: { borderRadius: 2, p: 1 }
       }}
     >
       <DialogTitle sx={{ fontWeight: 600, textAlign: "center" }}>
