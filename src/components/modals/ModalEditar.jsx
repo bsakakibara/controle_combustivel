@@ -12,18 +12,9 @@ import {
 } from "@mui/material";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ModalConfirmacao from "../modals/ModalConfirmacao";
+import ModalConfirmacao from "./ModalConfirmacao";
 
-interface ModalEditarProps {
-    aberto: boolean;
-    item: any;
-    onFechar: () => void;
-    onSalvar: (itemEditado: any) => void;
-    setItemEditando: (item: any) => void;
-    onExcluir: (index: number) => void;
-}
-
-const ModalEditar: React.FC<ModalEditarProps> = ({
+const ModalEditar = ({
     aberto,
     item,
     onFechar,
@@ -61,7 +52,7 @@ const ModalEditar: React.FC<ModalEditarProps> = ({
                     </Box>
                     <IconButton
                         color="error"
-                        onClick={() => onExcluir(item.index)}
+                        onClick={() => setConfirmarAberto(true)} // abre modal de confirmação
                     >
                         <DeleteIcon />
                     </IconButton>
@@ -112,6 +103,7 @@ const ModalEditar: React.FC<ModalEditarProps> = ({
                     </Button>
                 </DialogActions>
             </Dialog>
+
             <ModalConfirmacao
                 aberto={confirmarAberto}
                 titulo="Confirmar Exclusão"
