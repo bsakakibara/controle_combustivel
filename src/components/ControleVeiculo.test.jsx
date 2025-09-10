@@ -25,7 +25,7 @@ describe("ControleVeiculo Component", () => {
     test("troca de aba funciona", () => {
         renderWithTheme();
 
-        const oleoTab = screen.getByRole('tab', { name: /Óleo/i });
+        const oleoTab = screen.getAllByRole("tab", { name: /Óleo/i })[0];
         fireEvent.click(oleoTab);
         expect(screen.getByRole('heading', { name: /Controle de Óleo/i, level: 5 })).toBeInTheDocument();
     })

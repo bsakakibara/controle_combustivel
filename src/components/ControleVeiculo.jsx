@@ -57,6 +57,7 @@ export default function ControleVeiculo({ darkMode, setDarkMode }) {
       <Box sx={{ display: "flex", justifyContent: "flex-end", px: 2, py: 1 }}>
         <IconButton
           onClick={toggleDarkMode}
+          aria-label="brightness"
           sx={{
             color: theme.palette.text.primary,
             borderRadius: 0.5,
