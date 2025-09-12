@@ -33,7 +33,7 @@ export default function ControleOleo({
     let statusOleo = "ok";
     let msgOleo = "";
 
-    if (kmTrocaOleo && quilometragemAtual) {
+    if (typeof kmTrocaOleo === "number" && typeof quilometragemAtual === "number") {
         const kmPassados = quilometragemAtual - kmTrocaOleo;
         if (kmPassados >= validadeKm) {
             statusOleo = "vencido";
@@ -52,19 +52,21 @@ export default function ControleOleo({
             statusOleo = "vencido";
             msgOleo = `Troca de óleo vencida por tempo! (${mesesPassados} meses)`;
         } else if (mesesPassados >= validadeMeses * 0.8) {
-            statusOleo = "alerta";
-            msgOleo = `Troca de óleo próxima por tempo (${mesesPassados} meses)`;
+            if (statusOleo === "ok") {
+                statusOleo = "alerta";
+                msgOleo = `Troca de óleo próxima por tempo (${mesesPassados} meses)`;
+            }
         }
     }
 
     const getStatusIcon = () => {
         switch (statusOleo) {
             case "ok":
-                return <CheckCircleIcon sx={{ color: theme.palette.mode === "light" ? "#10B981" : "#00FFAB", fontSize: 40 }} />;
+                return <CheckCircleIcon data-testid="StatusIcon" sx={{ color: theme.palette.mode === "light" ? "#10B981" : "#00FFAB", fontSize: 40 }} />;
             case "alerta":
-                return <WarningAmberIcon sx={{ color: theme.palette.mode === "light" ? "#F59E0B" : "#FACC15", fontSize: 40 }} />;
+                return <WarningAmberIcon data-testid="StatusIcon" sx={{ color: theme.palette.mode === "light" ? "#F59E0B" : "#FACC15", fontSize: 40 }} />;
             case "vencido":
-                return <ErrorIcon sx={{ color: theme.palette.mode === "light" ? "#EF4444" : "#F87171", fontSize: 40 }} />;
+                return <ErrorIcon data-testid="StatusIcon" sx={{ color: theme.palette.mode === "light" ? "#EF4444" : "#F87171", fontSize: 40 }} />;
             default:
                 return null;
         }
@@ -159,6 +161,7 @@ export default function ControleOleo({
                                 '& .MuiInputBase-root': { color: theme.palette.text.primary },
                                 '& .MuiInputLabel-root': { color: theme.palette.text.secondary },
                             }}
+                             inputProps={{ "data-testid": "km-troca-input-formulario" }}
                         />
                         <TextField
                             label="Data da última troca"
