@@ -87,12 +87,16 @@ export default function ControleCombustivel() {
 
   if (historico.length > 0) {
     const ultimo = historico[historico.length - 1];
-    const kmBase = quilometragemInicial ?? ultimo.km;
-    const kmAtualValid = quilometragemAtual ?? ultimo.km;
+
+    // quilometragem no momento do último abastecimento
+    const kmBase = ultimo.km;
+    // quilometragem atual (se não digitada, fica no último abastecimento)
+    const kmAtualValid = quilometragemAtual ?? kmBase;
 
     const kmRodados = kmAtualValid - kmBase;
     const litrosDisponiveis = ultimo.nivelAntes + ultimo.litros;
 
+    // conforme o km sobe, litros vão sendo consumidos
     litrosRestantes = Math.max(litrosDisponiveis - kmRodados / consumoMedio, 0);
     autonomiaRestante = litrosRestantes * consumoMedio;
   }
